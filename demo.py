@@ -5,7 +5,7 @@ import pandas as pd
 import time
 import csv
 import codecs
-import xlwt
+# import xlwt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import balanced_accuracy_score
@@ -98,10 +98,11 @@ def calcuD(list1, list2, c):
 def woa(maxt,y):
     time_start = time.time()
     print("程序运行")
-    df = pd.read_csv('F:/1 for pycharm/dataset/ionosphere.csv', header=None)
+    df = pd.read_csv('E:/code/newpycharm/dataset/ionosphere.csv', header=None)
     data = df.values[:, 0:len(df.values[0]) - 1]
-    scaler = StandardScaler()
-    sample = scaler.fit_transform(data)
+    # scaler = StandardScaler()
+    # sample = scaler.fit_transform(data)
+    sample=data
     # ionosphere.csv数据集第二列全为零
     sample[:, 1] = 0
     # 标签
@@ -114,19 +115,20 @@ def woa(maxt,y):
             cla.append('0')
     print("粒子初始化")
     # 初始化量子蓝鲸
-    if (df.shape[0] / 20 < 20):
-        num_whale = 20
-    else:
-        num_whale = df.shape[0] / 20
-    num_feat = df.shape[1] - 1
-    # num_whale = 20;
-    # num_feat = 34
+    # if (df.shape[0] / 20 < 20):
+    #     num_whale = 20
+    # else:
+    #     num_whale = df.shape[0] / 20
+    # num_feat = df.shape[1] - 1
+    num_whale = 20;
+    num_feat = 34
     particlea = np.random.rand(num_whale, num_feat)
     # particleb=np.random.rand(num_whale,num_feat)
     particlea[:, :] = math.pi / 4
     # particlea[:,:]=1/math.sqrt(2)
     # particleb[:,:]=1/math.sqrt(2)
     particle2 = np.empty([num_whale, num_feat])
+    print('观察')
     for x in range(num_whale):
         for y in range(num_feat):
             # 观测
@@ -137,10 +139,6 @@ def woa(maxt,y):
                 # flag = 0
             else:
                 particle2[x][y] = 0
-                # 当初始化全为零时，KNN无法fit,随机选一个作为最优,
-                # 且给一个标记，因为在搜寻阶段还要KNN来fit
-                # flag = 1
-        # if (flag == 0):
     fitness = list()
     accuracy = list()
     for i in range(num_whale):
@@ -167,7 +165,6 @@ def woa(maxt,y):
     print("进入迭代")
     while (t < maxt):
         # print("####t####:", t)
-
         t += 1
         for x in range(num_whale):
             for y in range(num_feat):
@@ -209,8 +206,8 @@ def woa(maxt,y):
                 # flag = 0
                 rand1 = random.randint(0, num_whale)
                 rand2 = random.randint(0, num_whale)
-                fit1 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
-                fit2 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+                fit1,fit3 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+                fit2,fit4 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
                 p = 0.75  # 竞赛参数
                 rjingsai = random.random()
                 if (fit1 > fit2):
@@ -283,10 +280,10 @@ def woa(maxt,y):
             particle2[x][y] = 1
         else:
             particle2[x][y] = 0
-    x = list(range(maxt))
-    plt.plot(x, bestFitList, label="fit")
-    plt.plot(x, bestAccList, label="acc")
-    plt.show()
+    # x = list(range(maxt))
+    # plt.plot(x, bestFitList, label="fit")
+    # plt.plot(x, bestAccList, label="acc")
+    # plt.show()
     m = 0
     for i in range(num_feat):
         if (best[i] > 0):
@@ -302,12 +299,13 @@ def woa(maxt,y):
     # print('bestacclist', bestAccList)
     time_end = time.time()
     # dataframe = pd.DataFrame(bestFitList)
-    # dataframe.to_excel('F:/1 for pycharm/result/ionosphere/ionospherefitness1.xls')
+    # dataframe.to_excel('E:/code/newpycharm/result/ionosphere/ionospherefitness1.xls')
     # dataframe = pd.DataFrame(bestAccList)
-    # dataframe.to_excel('F:/1 for pycharm/result/ionosphere/ionosphereaccuracy1.xls')
+    # dataframe.to_excel('E:/code/newpycharm/result/ionosphere/ionosphereaccuracy1.xls')
     print('totally cost', time_end - time_start)
     return bestFitness
 
+# fit1 = woa(40,0.5)
 betterfit=0
 bettert=0
 bettery=0
@@ -320,6 +318,6 @@ for t in [5,10,20,30,40,50,60,70,80,90,100,150]:
             betterfit=fit1
             bettert = t
             bettery = y
-print(betterfit)
+print('betterfit',betterfit)
 print(bettert)
 print(bettery)

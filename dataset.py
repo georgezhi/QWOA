@@ -5,20 +5,60 @@ import pandas as pd
 import time
 import csv
 import codecs
-import xlwt
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import KFold
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+
+def calcu(p):
+    return p.shape[0]
+
+# time_start = time.time()
+# print("程序运行")
+# df = pd.read_csv('E:/code/newpycharm/dataset/ionosphere.csv', header=None)
+# data = df.values[:, 0:len(df.values[0]) - 1]
+# # scaler = StandardScaler()
+# # sample = scaler.fit_transform(data)
+# sample=data
+# # ionosphere.csv数据集第二列全为零
+# sample[:, 1] = 0
+# # 标签
+# label = df.values[:, -1]
+# cla = list()
+# for i in label:
+#     if (i == 'g'):
+#         cla.append('1')
+#     else:
+#         cla.append('0')
+# print("粒子初始化")
+# # 初始化量子蓝鲸
+# # if (df.shape[0] / 20 < 20):
+# #     num_whale = 20
+# # else:
+# #     num_whale = df.shape[0] / 20
+# # num_feat = df.shape[1] - 1
+# num_whale = 20;
+# num_feat = 34
+# # particlea = np.random.rand(num_whale, num_feat)
+# particlea = np.random.rand(2, 2)
+# m= calcu(particlea)
+# print(particlea)
+# print(m)
+# particlea[:, :] = math.pi / 4
 
 
 def calcuAcc(whale, sample, label):
     d = list(whale[:].nonzero())
+    print("####被选的特征序号####: ", d)
     data_X = sample[:, d[0]]
     data_y = np.array(label)
-    # print(data_X)
+    print("####被选的data_x####: ",data_X)
     # print(data_y)
+    if len(d) ==0:
+        print("####len(d)=0####")
+        return 0
     kf = KFold(n_splits=10, shuffle=True)
     i = 0
     acc = list()
@@ -27,12 +67,18 @@ def calcuAcc(whale, sample, label):
         train_X, test_X = data_X[train_index], data_X[test_index]
         train_y, test_y = data_y[train_index], data_y[test_index]
         # knn
-        knn = KNeighborsClassifier()
-        knn.fit(train_X, train_y)
-        predict_y = knn.predict(test_X)
-        acc.append(balanced_accuracy_score(test_y, predict_y))
+        # knn = KNeighborsClassifier()
+        # knn.fit(train_X, train_y)
+        # predict_y = knn.predict(test_X)
+        clf = DecisionTreeClassifier()
+        # print("####被选的data_x####: ", train_X)
+        if len(d) == 0:
+            print("####len(d)=0####")
+            return 0
+        clf.fit(train_X, train_y)
+        predict_y = clf.predict(test_X)
+        acc.append(accuracy_score(test_y, predict_y))
     return (mean(acc))
-
 
 def calcuDistance(whale, sample, label, num_whale, num_feat):
     d = list(whale[:].nonzero())
@@ -108,8 +154,9 @@ def calcuFitness(particle, i, sample, label, num_whale, num_feat,y):
           + (1 - y) * (num_feat-d)/num_feat
     # fit = y * calcuAcc(particle[i], sample, label) \
     #       + (1 - y) * calcuDistance(particle[i], sample, label, num_whale, num_feat)
-    acc = calcuAcc(particle[i], sample, label)
-    return fit, acc;
+    # acc = calcuAcc(particle[i], sample, label)
+    # return fit ,acc;
+    return fit
 
 
 def calcuD(list1, list2, c):
@@ -139,7 +186,7 @@ def woa(maxt,y):
     time_start = time.time()
     print("程序运行")
     fh.write('\n' + '程序运行' )
-    df = pd.read_csv('F:/1 for pycharm/dataset/ionosphere.csv', header=None)
+    df = pd.read_csv('E:/code/newpycharm/dataset/ionosphere.csv', header=None)
     data = df.values[:, 0:len(df.values[0]) - 1]
     scaler = StandardScaler()
     sample = scaler.fit_transform(data)
@@ -186,9 +233,10 @@ def woa(maxt,y):
     fitness = list()
     accuracy = list()
     for i in range(num_whale):
-        fit, acc = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+        # fit, acc = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+        fit = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
         fitness.append(fit)
-        accuracy.append(acc)
+        # accuracy.append(acc)
     bestFitList = list()
     bestAccList = list()
     bestFitness = max(fitness)
@@ -252,8 +300,10 @@ def woa(maxt,y):
                 # flag = 0
                 rand1 = random.randint(0, num_whale)
                 rand2 = random.randint(0, num_whale)
-                fit1 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
-                fit2 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+                # fit1, acc1 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat, y)
+                # fit2, acc2 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat, y)
+                fit1 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat, y)
+                fit2 = calcuFitness(particle2, i, sample, cla, num_whale, num_feat, y)
                 p = 0.75  # 竞赛参数
                 rjingsai = random.random()
                 if (fit1 > fit2):
@@ -300,11 +350,12 @@ def woa(maxt,y):
         # print("flag",flag)
         # 求最优蓝鲸个体
         fitness = list()
-        accuracy = list()
+        # accuracy = list()
         for i in range(num_whale):
-            fit, acc = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+            # fit, acc = calcuFitness(particle2, i, sample, cla, num_whale, num_feat,y)
+            fit = calcuFitness(particle2, i, sample, cla, num_whale, num_feat, y)
             fitness.append(fit)
-            accuracy.append(acc)
+            # accuracy.append(acc)
         maxFitness = max(fitness)
         maxIndex = fitness.index(maxFitness)
         bestFitList.append(maxFitness)
@@ -326,6 +377,7 @@ def woa(maxt,y):
             particle2[x][y] = 1
         else:
             particle2[x][y] = 0
+    acc = calcuAcc(particle2[i], sample, label)
     x = list(range(maxt))
     plt.plot(x, bestFitList, label="fit")
     plt.plot(x, bestAccList, label="acc")
@@ -359,10 +411,14 @@ def woa(maxt,y):
 betterfit=0
 bettert=0
 bettery=0
+# fh = open('E:/code/newpycharm/result/ionosphere/ionospherediedai.txt', 'a+', encoding='utf-8')
+# fh.write('\n'+'####迭代变量='+str(40)+"#####")
+# fh.write('\n'+'####参数y='+str(0.5)+"#####")
+# fit1 =woa(40,0.5)
 for t in [5,10,20,30,40,50,60,70,80,90,100,150]:
     for y in [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
         print("####迭代变量=",t,"#####")
-        fh = open('F:/1 for pycharm/result/ionosphere/ionospherediedai.txt', 'a+', encoding='utf-8')
+        fh = open('E:/code/newpycharm/result/ionosphere/ionospherediedai2.txt', 'a+', encoding='utf-8')
         fh.write('\n'+'####迭代变量='+str(t)+"#####")
         print("####参数y=",y,"#####")
         # fh = open('F:/1 for pycharm/result/ionosphere/ionospherediedai.txt', 'a+', encoding='utf-8')
@@ -373,7 +429,7 @@ for t in [5,10,20,30,40,50,60,70,80,90,100,150]:
             bettert = t
             bettery = y
 print(betterfit)
-fh = open('F:/1 for pycharm/result/ionosphere/ionospherediedai.txt', 'a+', encoding='utf-8')
+fh = open('E:/code/newpycharm/result/ionosphere/ionospherediedai2.txt', 'a+', encoding='utf-8')
 fh.write('betterfit'+betterfit+'\n')
 print(bettert)
 # fh = open('F:/1 for pycharm/result/ionosphere/ionospherediedai.txt', 'a+', encoding='utf-8')

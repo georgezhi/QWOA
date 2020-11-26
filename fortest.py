@@ -11,18 +11,30 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
+
+
+
+
+
+
+
+
+
+
+
+
 def data_write_csv(file_name, datas):#file_name为写入CSV文件的路径，datas为要写入数据列表
   file_csv = codecs.open(file_name,'w+','utf-8')#追加
   writer = csv.writer(file_csv, delimiter=' ', quotechar=' ', quoting=csv.QUOTE_MINIMAL)
   for data in datas:
     writer.writerow(data)
   print("保存文件成功，处理结束")
-
-bestFitList=list()
-
-data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",bestFitList)
-data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",bestAccList)
-data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",time_end - time_start)
+#
+# bestFitList=list()
+#
+# data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",bestFitList)
+# data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",bestAccList)
+# data_write_csv("F:/1 for pycharm/result/ionosphere/ionosphere.csv",time_end - time_start)
 # def calcuAcc(whale, sample, label):
 #     d = list(whale[:].nonzero())
 #     data_X = sample[:, d[0]]
